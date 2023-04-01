@@ -125,20 +125,23 @@ class _DefaultModeState extends State<DefaultMode> {
             widget.suggestions[index].asPascalCase,
             style: widget.biggerFont,
           ),
-          trailing: Icon(
-            alreadySaved ? Icons.favorite : Icons.favorite_border,
-            color: alreadySaved ? const Color.fromARGB(255, 202, 35, 29) : null,
-            semanticLabel: alreadySaved ? "Remove from saved" : "Save",
+          trailing: InkWell(
+            onTap: () {
+              setState(() {
+                if (alreadySaved) {
+                  widget.saved.remove(widget.suggestions[index]);
+                } else {
+                  widget.saved.add(widget.suggestions[index]);
+                }
+              });
+            },
+            child: Icon(
+              alreadySaved ? Icons.favorite : Icons.favorite_border,
+              color:
+                  alreadySaved ? const Color.fromARGB(255, 202, 35, 29) : null,
+              semanticLabel: alreadySaved ? "Remove from saved" : "Save",
+            ),
           ),
-          onTap: () {
-            setState(() {
-              if (alreadySaved) {
-                widget.saved.remove(widget.suggestions[index]);
-              } else {
-                widget.saved.add(widget.suggestions[index]);
-              }
-            });
-          },
         );
       },
     );
@@ -149,6 +152,7 @@ class CardMode extends StatefulWidget {
   final List<WordPair> suggestions;
   final Set<WordPair> saved;
   final TextStyle biggerFont;
+
   const CardMode(
       {super.key,
       required this.suggestions,
@@ -163,57 +167,87 @@ class _CardModeState extends State<CardMode> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-        gridDelegate:
-            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        padding: const EdgeInsets.all(15),
-        itemBuilder: ((context, i) {
-          if (i >= widget.suggestions.length - 1) {
-            widget.suggestions.addAll(generateWordPairs().take(10));
-          }
-          final alreadySaved = widget.saved.contains(widget.suggestions[i]);
-          return Row(
-            children: [
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(7, 7, 0, 0),
-                  height: 160,
-                  width: double.maxFinite,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (alreadySaved) {
-                          widget.saved.remove(widget.suggestions[i]);
-                        } else {
-                          widget.saved.add(widget.suggestions[i]);
-                        }
-                      });
-                    },
-                    child: Card(
-                      elevation: 2,
-                      child: Center(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text("${widget.suggestions[i]} Card",
-                              style: widget.biggerFont),
-                          Icon(
-                            alreadySaved
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: alreadySaved
-                                ? const Color.fromARGB(255, 202, 35, 29)
-                                : null,
-                            semanticLabel:
-                                alreadySaved ? "Remove from saved" : "Save",
-                          )
-                        ],
-                      )),
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      padding: const EdgeInsets.all(15),
+      itemBuilder: ((context, i) {
+        if (i >= widget.suggestions.length - 1) {
+          widget.suggestions.addAll(generateWordPairs().take(10));
+        }
+        final alreadySaved = widget.saved.contains(widget.suggestions[i]);
+        return Row(
+          children: [
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(5, 5, 0, 0),
+                height: 160,
+                width: double.maxFinite,
+                child: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(
+                          color: Color.fromARGB(255, 62, 178, 99), width: 1)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () {},
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            widget.suggestions[i].asPascalCase,
+                            style: widget.biggerFont,
+                          ),
+                        ),
+                        Expanded(child: Container()),
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    if (alreadySaved) {
+                                      widget.saved
+                                          .remove(widget.suggestions[i]);
+                                    } else {
+                                      widget.saved.add(widget.suggestions[i]);
+                                    }
+                                  });
+                                },
+                                icon: Icon(
+                                  alreadySaved
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: alreadySaved
+                                      ? const Color.fromARGB(255, 202, 35, 29)
+                                      : const Color.fromARGB(255, 62, 178, 99),
+                                ),
+                                label: Text(
+                                  alreadySaved ? 'Saved' : 'Save',
+                                  style: TextStyle(
+                                    color: alreadySaved
+                                        ? const Color.fromARGB(255, 202, 35, 29)
+                                        : const Color.fromARGB(
+                                            255, 62, 178, 99),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              )
-            ],
-          );
-        }));
+              ),
+            ),
+          ],
+        );
+      }),
+    );
   }
 }
